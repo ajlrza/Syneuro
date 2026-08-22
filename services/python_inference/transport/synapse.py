@@ -1,13 +1,22 @@
-import json, os, random, asyncio
-import numpy as np
 import numba
+import numpy as np
+import json, os, random, asyncio
+from dataclasses import dataclass, field
+ 
+@dataclass
+class NormalCacheEntry:
+    timestamp: str
+    data: object
 
-@numba.jit(python=False)
+@dataclass
+class NormalCacheStore:
+    store: dict 
+
 class HilbertSpace:
 
     hilbert_space = np.array([1, 0], dtype=np.complex128)
 
-    def __init__(self, normal_cache: dict):
+    def __init__(self, normal_cache: ncache_dc_list):
 
         '''
             Instantiates the HilbertSpace class along with the follow: hilbert_cache, hilbert_space_vector_id,
@@ -15,26 +24,28 @@ class HilbertSpace:
             vector mapping.
         '''
 
-        self.hilbert_cache = normal_cache
-        self.hilbert_space_vector = np.array()
+        self.normal_cache: normal_cache_dc
+        self.hilbert_space_vector = np.array([], dtype=np.complex128)
 
         self.processed_data = {}
 
-        for datetime, data in enumerate(self.hilbert_cache):
+        for index, data in enumerate(self.normal_cache):
 
             self.hilbert_space_vector_id = random.randint(10000000, 99999999)
             self.processed_data[self.hilbert_space_vector_id] = {datetime: data}
 
-            if (datetime[-2:] - 30 == 0):
-                self.processed_data[self.hilbert_space_vector_id]["operation"] == 1
+            if (self.hilbert_cache[index][-2:] - 30 == 0):
+                self.processed_data[self.hilbert_space_vector_id]["operation"] = 1
 
-            elif (datetime[-2:] - 30 >= 1):
-                self.processed_data[self.hilbert_space_vector_id]["operation"] == 2
+            elif (self.hilbert_cache[index][-2:] - 30 >= 1):
+                self.processed_data[self.hilbert_space_vector_id]["operation"] = 2
 
+    @numba.jit(python=False)
     def linear_comb(self, processed_data: dict, vector, data) -> None:
 
         self.processed_data[vector][data] = self.processed_data[list(self.processed_data.index(vector) + 1)][data]  + self.processed_data[vector][data]
 
+    @numba.jit(python=False)
     def dot_prod(self, processed_data: dict, vector, data) -> None:
 
         H = (1 / np.sqrt(2)) * np.array([[1, 1], [1, -1]])
@@ -43,6 +54,7 @@ class HilbertSpace:
         self.processed_data[vector][data] = np.dot(self.processed_data[list(self.processed_data.index(vector) - 1)][data], 
                                                                        self.processed_data[vector][data])
         
+    @numba.jit(python=False)
     def perform_operation(self) -> int:
 
         '''
