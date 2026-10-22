@@ -1,5 +1,6 @@
 from groq import Groq
 import os
+from datetime import datetime, timezone
 from src.inference import brain
 
 client = Groq()
@@ -20,6 +21,9 @@ elif (use_or_not == 'n'):
 key = input(os.environ.get("API_KEY"))
 
 agent_brain = brain.Brain(key)
+current_time = datetime.now(timezone.utc)
+
+formatted_time = current_time.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
 
 while (use_app):
     talk = input("Talk with agent / Stop talking with Agent: enter C")
@@ -27,5 +31,20 @@ while (use_app):
     if (talk == 'C'):
         break
 
-    agent_response = agent_brain.brain_sensor_entrypoint(talk)
-    print(agent_response)
+    app_output = {
+        'sensory': {
+            f'{formatted_time}': talk
+        },
+        'modalities': ['Text'],
+        'request_activation': ['CEN'],
+        'active_modules': []
+    }
+
+    conscious = agent_brain.activate_conscious_state(talk, key)
+
+    if (conscious):
+        brain_response = agent_brain.react_to_sensory_data()
+        
+    print(brain_response)
+    
+

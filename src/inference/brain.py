@@ -1,9 +1,24 @@
 import os, sys
+from typing import Literal
+from dataclasses import dataclass
 from .networks import CENNetwork, LIMNetwork, SALNetwork
 
 root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if root_dir not in sys.path:
     sys.path.insert(0, root_dir)
+
+@dataclass
+class modules(slots=True):
+    CEN: CENNetwork
+    LIM: LIMNetwork
+    SAL: SALNetwork
+
+@dataclass
+class output(slots=True):
+    sensory: dict[str, str]
+    modalities: list[Literal['TextSensor', 'AudioSensor', 'VideoSensor']]
+    request_activation: list[Literal['CEN', 'LIM']]
+    active_modules: modules
 
 def network_builder(network: str):
 
@@ -14,44 +29,43 @@ class Brain:
      
     __slots__ = ['active_modules', 'api_key', 'app_output']
 
-    def __init__(self, api_key):
-        self.app_output = None
-        self.api_key = api_key
-        self.active_modules = {"CEN": None, "LIM": None, "SAL": None}
+    def __init__(self, api_key) -> None:
+        self.app_output: output = None
+        self.api_key: str = None
+        self.active_modules: modules = None
+ 
+    def activate_brain_module(self, brain_module: str) -> None:
 
-    def activate_brain_module(self, brain_module: str):
-
-        if brain_module in self.active_modules.keys():
+        if brain_module in self.active_modules:
             return f'{brain_module} is already active.'
         
         try:   
-            self.active_modules[brain_module] = network_builder(brain_module)(self.app_output)
+            setattr(self.active_modules, brain_module, network_builder(brain_module)(self.app_output))
         except:
             try:
-                self.active_modules[brain_module] = network_builder(brain_module)(self.app_output, self.api_key)
+                setattr(self.active_modules, brain_module, network_builder(brain_module)(self.app_output)(self.api_key))
             except:
-                self.active_modules[brain_module] = network_builder(brain_module)(self.app_output)
-
-    def brain_sensor_entrypoint(self,app_output: object):
-        self.app_output = app_output
-        return
+                setattr(self.active_modules, brain_module, network_builder(brain_module)(self.app_output))
         
-    def activate_conscious_state(self, app_output: object, api_key: str):
+    def activate_conscious_state(self, app_output: object, api_key: str) -> bool:
+
+        self.app_output = output()
+
+        self.active_modules = map(setattr(self.app_output, _),app_output)
+
+        self.api_key = api_key
 
         if (len(app_output['request_activation']) >= 1):
+
             for brain_module in app_output['request_activation']:
-                self.activate_brain_module(brain_module)
+                if brain_module in self.active_modules:
+                    self.activate_brain_module(brain_module)
 
-        if (len(app_output['sensory'].keys()) >= 1 and len(self.brain_management.active_modules.keys()) >= 1):
+            return self.active_modules
 
-            cen_work = self.brain_management.active_modules['CEN']
-            lim_work = self.brain_management.active_modules['LIM']
+        self.activate_brain_module(app_output['request_activation'][0])
+        return True
 
-            cen_active = cen_work(app_output)
-            lim = lim_work(app_output, api_key)
+    def react_to_sensory_data(self) -> dict:
 
-            print(lim.emotion_matrix)
-        else:
-            return ("Syneuro does not process any sensor_data and active brain modules at the moment.")
-        
-        # There's no need for database ID in this, as it is not an application but a middleware.
+        return self.active_modules.LIM(self.app_output)

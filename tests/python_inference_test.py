@@ -24,10 +24,10 @@ class TestInference(unittest.TestCase):
                 'CEN',
                 'LIM'
             ],
-            'active_modules': [
-                'CEN',
-                'LIM'
-            ],
+            'active_modules': {
+                'CEN' = object,
+                'LIM' = object
+            },
         }
 
         load_dotenv()
