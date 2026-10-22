@@ -1,5 +1,4 @@
 import os, sys
-from groq import Groq
 from .networks import CENNetwork, LIMNetwork, SALNetwork
 
 root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -15,8 +14,8 @@ class Brain:
      
     __slots__ = ['active_modules', 'api_key', 'app_output']
 
-    def __init__(self, app_output: object, api_key):
-        self.app_output = app_output
+    def __init__(self, api_key):
+        self.app_output = None
         self.api_key = api_key
         self.active_modules = {"CEN": None, "LIM": None, "SAL": None}
 
@@ -32,6 +31,10 @@ class Brain:
                 self.active_modules[brain_module] = network_builder(brain_module)(self.app_output, self.api_key)
             except:
                 self.active_modules[brain_module] = network_builder(brain_module)(self.app_output)
+
+    def brain_sensor_entrypoint(self,app_output: object):
+        self.app_output = app_output
+        return
         
     def activate_conscious_state(self, app_output: object, api_key: str):
 
