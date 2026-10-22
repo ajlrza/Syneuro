@@ -70,7 +70,6 @@ class TestInference(unittest.TestCase):
         brain = Brain(app_output, api_key)
         
         activate_bm = brain.activate_brain_module('LIM')
-        from src.inference.networks.network_imports import network_builder  
 
         lim = network_builder("LIM")
 
