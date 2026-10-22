@@ -5,15 +5,14 @@ import time
 import numpy as np
 
 # Executive function
-def filterModalities(modalities: object):
-     accepted_modalities = [
-          "Text", 
-          "Audio", 
-          "Video",
-          "Image",
-          "VideoSensor"
-          ]
+def filter_modalities(modalities: object):
      
+     accepted_modalities: set = set("TextSensor", "AudioSensor", "VideoSensor")
+     
+     video_sensor: set = set("Image", "Video")
+     text_sensor: set = set("UserText" "AgentText")
+     audio_sensor: set = set("UserAudio", "AgentAudio")
+
      filtered_modalities = []
 
      for modality in modalities:
@@ -40,10 +39,17 @@ class CENNetwork:
         else:
             raise ValueError("CENetwork requires at least 2 modalities.")
 
-    def __filter_modalities(self, modalities_list: list) -> bool:
-        accepted_modalities = {"Text", "Audio", "Video", "Image", "VideoSensor"} 
+    def __filter_modalities(self, modalities: list[str]) -> bool:
 
-        valid_count = sum(1 for m in modalities_list if m in accepted_modalities)
+        accepted_modalities: set = set("TextSensor", "AudioSensor", "VideoSensor")
+     
+        video_sensor: set = set("Image", "Video")
+        text_sensor: set = set("UserText" "AgentText")
+        audio_sensor: set = set("UserAudio", "AgentAudio")
+
+        filtered_modalities = []
+
+        valid_count = sum(1 for mode in modalities if mode in accepted_modalities)
         
         return valid_count >= 1
 
@@ -99,5 +105,4 @@ class CENNetwork:
         decayed_state = saved_state_vector * decay_factor
         
         return decayed_state
-
 
