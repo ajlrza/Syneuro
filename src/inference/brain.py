@@ -1,5 +1,5 @@
 import os, sys
-from typing import Literal
+from typing import Literal, Callable
 from .network import modules, output, network_builder
 
 root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -8,12 +8,13 @@ if root_dir not in sys.path:
 
 class Brain:
      
-    __slots__ = ['active_modules', 'api_key', 'app_output']
+    __slots__ = ['active_modules', 'api_key', 'app_output', 'spiked']
 
     def __init__(self, api_key) -> None:
         self.app_output: output = None
         self.api_key: str = None
         self.active_modules: modules = None
+        self.spiked: any | dict[str, any] = None
  
     def activate_brain_module(self, brain_module: str) -> None:
 
@@ -47,6 +48,24 @@ class Brain:
         self.activate_brain_module(app_output['request_activation'][0])
         return True
 
-    def react_to_sensory_data(self) -> dict:
+    def react_to_sensory_data(self) -> None:
 
-        return self.active_modules.LIM(self.app_output)
+        lim_spike = self.neural_pathway(self.active_modules.LIM) if self.neural_pathway(self.active_modules.LIM) != 0 else 0
+        cen_spike = self.neural_pathway(self.active_modules.CEN) if self.neural_pathway(self.active_modules.CEN) != 0 else 0
+        sal_spike = self.neural_pathway(self.active_modules.SAL) if self.neural_pathway(self.active_modules.SAL) != 0 else 0
+
+        self.spiked['LIM'] = lim_spike
+        self.spiked['CEN'] = cen_spike
+        self.spiked['SAL'] = sal_spike
+
+    def neural_pathway(self, brain_module: object):
+
+        match (brain_module):
+            case self.active_modules.LIM:
+                return self.active_modules.LIM.lim_pathway(self.app_output)
+            case self.active_modules.CEN:
+                return self.active_modules.CEN.cen_pathway(self.app_output) #soon
+            case self.active_modules.SAL:
+                return self.active_modules.SAL.sal_pathway(self.app_output) #soon
+
+            #soon

@@ -81,21 +81,22 @@ class LIMNetwork:
      it regulates mood, emotional responses, motivation, and memory formation.
      '''
      client: Groq
-     sensor: SensoryOutput
+     text_data: str = None
+     audio_data: bytearray = None
+     Video_data: bytearray = None
      emotion: QuantumEmotion
      emotion_matrix: dict 
-     cen: any
 
-     def __init__(self, app_output: dict, api_key: str):
+     def __init__(self, api_key: str):
 
-          from .network_imports import network_builder # Deferred import
+          from ...network import network_builder # Deferred import
 
           self.client = Groq(api_key=api_key)
           self.sensor = SensoryOutput()
           self.emotion = QuantumEmotion()
 
-          cen_class = network_builder("CEN")
-          self.cen = cen_class(agent_output=app_output)
+          #cen_class = network_builder("CEN")
+          #self.cen = cen_class(agent_output=app_output)
 
           self.emotion_matrix = {
                "x": {
@@ -114,7 +115,8 @@ class LIMNetwork:
                }
           }
 
-          self.amygdala(app_output)
+     def lim_pathway(self, app_output: dict) -> dict | int:
+          return self.amygdala(app_output)
 
      def update_emotion_matrix(self):
         x_val = self.emotion.bloch_vector['x'][0]
@@ -151,7 +153,7 @@ class LIMNetwork:
      def thalamus(self, sensory_data: dict):
 
           def check_attention(saved_state_vector, last_timestamp, decay_rate):
-               from .network_imports import network_builder
+
                attention_decay = self.cen.attention_check(saved_state_vector, timestamp, decay_rate)
                if (attention_decay):
                     return attention_decay
@@ -209,6 +211,8 @@ class LIMNetwork:
 
           if (bloch_vector['x'] + bloch_vector['y'] + bloch_vector['z']) != 0:
                self.update_emotion_matrix()
+          else:
+               return 0
                     
           return self.emotion_matrix
 
