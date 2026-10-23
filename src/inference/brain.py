@@ -10,7 +10,7 @@ class Brain:
      
     __slots__ = ['active_modules', 'api_key', 'app_output', 'spiked']
 
-    def __init__(self, api_key) -> None:
+    def __init__(self) -> None:
         self.app_output: output = None
         self.api_key: str = None
         self.active_modules: modules = None
@@ -28,24 +28,30 @@ class Brain:
                 setattr(self.active_modules, brain_module, network_builder(brain_module)(self.app_output)(self.api_key))
             except:
                 setattr(self.active_modules, brain_module, network_builder(brain_module)(self.app_output))
-        
-    def activate_conscious_state(self, app_output: object, api_key: str) -> bool:
+
+    def sense_sensory_data(self, app_output: object):
 
         self.app_output = output()
+        self.app_output.sensory = app_output.sensory
 
-        self.active_modules = map(setattr(self.app_output, _),app_output)
+        #self.active_modules = map(setattr(self.app_output, _),app_output)
 
-        self.api_key = api_key
+    def activate_conscious_state(self) -> bool:
 
-        if (len(app_output['request_activation']) >= 1):
+        if (len(self.app_output['request_activation']) >= 1):
 
-            for brain_module in app_output['request_activation']:
+            for brain_module in self.app_output['request_activation']:
                 if brain_module in self.active_modules:
                     self.activate_brain_module(brain_module)
 
             return self.active_modules
 
-        self.activate_brain_module(app_output['request_activation'][0])
+        self.activate_brain_module(self.app_output['request_activation'][0])
+        return True
+        
+    def activate_conscious_warmup(self, api_key: str) -> bool:
+
+        self.api_key = api_key
         return True
 
     def react_to_sensory_data(self) -> None:

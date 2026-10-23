@@ -25,6 +25,9 @@ current_time = datetime.now(timezone.utc)
 
 formatted_time = current_time.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
 
+conscious_warmup = agent_brain.activate_conscious_warmup(key)
+user_talk = None
+
 while (use_app):
     talk = input("Talk with agent / Stop talking with Agent: enter C")
 
@@ -40,14 +43,18 @@ while (use_app):
         'active_modules': []
     }
 
-    conscious = agent_brain.activate_conscious_state(talk, key)
-
     if (conscious):
+
+        brain_sense = agent_brain.sense_sensory_data(app_output)
+        brain_conscious = agent_brain.activate_conscious_state()
         brain_response = agent_brain.react_to_sensory_data()
+
         for brain_module, spike in agent_brain.spiked:
             if (not spike):
                 continue
             print(f"{brain_module}" + spike)
     else:
-        conscious = agent_brain.activate_conscious_state(talk, key)
+        print("Agent's brain consciousness is not warmed up.")
+        print("Initializing agent's brain warm-up.")
+        conscious = agent_brain.activate_conscious_warmup(key)
 
