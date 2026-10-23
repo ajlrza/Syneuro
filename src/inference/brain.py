@@ -1,29 +1,10 @@
 import os, sys
 from typing import Literal
-from dataclasses import dataclass
-from .networks import CENNetwork, LIMNetwork, SALNetwork
+from .network import modules, output, network_builder
 
 root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if root_dir not in sys.path:
     sys.path.insert(0, root_dir)
-
-@dataclass
-class modules(slots=True):
-    CEN: CENNetwork
-    LIM: LIMNetwork
-    SAL: SALNetwork
-
-@dataclass
-class output(slots=True):
-    sensory: dict[str, str]
-    modalities: list[Literal['TextSensor', 'AudioSensor', 'VideoSensor']]
-    request_activation: list[Literal['CEN', 'LIM']]
-    active_modules: modules
-
-def network_builder(network: str):
-
-    networks = {"CEN": CENNetwork, "LIM": LIMNetwork, "SAL": SALNetwork}
-    return networks[network]
 
 class Brain:
      

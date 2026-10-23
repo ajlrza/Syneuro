@@ -46,5 +46,3 @@ while (use_app):
         brain_response = agent_brain.react_to_sensory_data()
         
     print(brain_response)
-    
-
