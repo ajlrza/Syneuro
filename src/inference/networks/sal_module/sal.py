@@ -19,17 +19,20 @@ class RAG:
         self.working_memory['attention'] = attention
 
 class SALNetwork:
-     from .network_imports import network_builder 
-     cen_class = network_builder("CEN")
-     cen: any
-     RAG: RAG
+
+     rag: RAG
      environmental_data = []
      attention_list = []
      current_attention = {}
+
+     __slots__ = ['rag', 'environmental_data', 'attention_list', 'current_attention']
      
      def __init__(self, raw_data: any):
           self.environmental_data.append(raw_data)
           # Get current status of user activity
+
+     def sal_pathway():
+        pass
 
      def signal_network(self) -> None:
           RAG = self.RAG.context_rag(self.environmental_data)
@@ -46,6 +49,7 @@ class SALNetwork:
                self.current_attention[attention_count] = attention
                
           while (True):
+
                if (self.RAG.working_memory() < 100):
                   self.RAG.add_memory(self.attention_list[task_count - 1])
                elif (self.cen.check_attention == False):
@@ -62,6 +66,7 @@ class SALNetwork:
                      taskCount += 1
                
      async def store_attention(self, attentionList: list, taskCount):
+          
           attentionList = attentionList
           add_attention = await self.cen.push_attention(self.attentionList, taskCount)
           return add_attention

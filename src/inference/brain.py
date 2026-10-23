@@ -58,7 +58,7 @@ class Brain:
         self.spiked['CEN'] = cen_spike
         self.spiked['SAL'] = sal_spike
 
-    def neural_pathway(self, brain_module: object):
+    def neural_pathway(self, brain_module: object) -> dict[str, any] | int:
 
         match (brain_module):
             case self.active_modules.LIM:
@@ -67,5 +67,3 @@ class Brain:
                 return self.active_modules.CEN.cen_pathway(self.app_output) #soon
             case self.active_modules.SAL:
                 return self.active_modules.SAL.sal_pathway(self.app_output) #soon
-
-            #soon

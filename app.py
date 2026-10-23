@@ -44,5 +44,10 @@ while (use_app):
 
     if (conscious):
         brain_response = agent_brain.react_to_sensory_data()
-        
-    print(brain_response)
+        for brain_module, spike in agent_brain.spiked:
+            if (not spike):
+                continue
+            print(f"{brain_module}" + spike)
+    else:
+        conscious = agent_brain.activate_conscious_state(talk, key)
+

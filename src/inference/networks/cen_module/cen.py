@@ -1,10 +1,6 @@
-import os
-import sys
-
 import time
 import numpy as np
 
-# Executive function
 def filter_modalities(modalities: object):
      
      accepted_modalities: set = set("TextSensor", "AudioSensor", "VideoSensor")
@@ -25,6 +21,9 @@ def filter_modalities(modalities: object):
           return False
      
 class CENNetwork:
+
+    __slots__ = ['agent_output', 'working_memory']
+
     agent_output: any
     working_memory: dict
 
@@ -66,6 +65,9 @@ class CENNetwork:
                 tre_neurons[neuron_name] += 1 * len(user_text)
 
         return tre_neurons 
+
+    def cen_pathway():
+        pass
 
     # Posterior Parietal Cortex 
     def PPC(self, visual_spikes: dict, text_spikes: dict) -> dict:
