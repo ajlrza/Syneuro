@@ -1,6 +1,6 @@
 ## 📖 Overview
 
-Syneuro is an LLM Persona Architecture designed to simulate complex emotions via Python
+Syneuro is a Neuro-Symbolic Affective-Computing Framework designed to simulate complex emotions via Python
 ## Architecture
 
 * **`SALNetwork` (Salience):** The core router. It actively monitors incoming telemetry and decides whether the emotion should be in a resting state or active.
