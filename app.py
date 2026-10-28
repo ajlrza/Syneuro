@@ -57,4 +57,3 @@ while (use_app):
         print("Agent's brain consciousness is not warmed up.")
         print("Initializing agent's brain warm-up.")
         conscious = agent_brain.activate_conscious_warmup(key)
-

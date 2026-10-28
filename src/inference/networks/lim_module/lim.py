@@ -1,10 +1,7 @@
-import transport
+import src.transport as tp
 import numpy as np
 from groq import Groq
-from enum import Enum
-from datetime import datetime
 import subprocess, json, asyncio
-from src.inference.networks.networks_classes import SensoryOutput
 
 def get_emotional_state(valence: float, arousal: float) -> tuple[np.complex128, np.complex128]:
     """
@@ -92,7 +89,7 @@ class LIMNetwork:
           from ...network import network_builder # Deferred import
 
           self.client = Groq(api_key=api_key)
-          self.sensor = SensoryOutput()
+          #self.sensor = SensoryOutput()
           self.emotion = QuantumEmotion()
 
           #cen_class = network_builder("CEN")
@@ -237,7 +234,7 @@ class LIMNetwork:
 
           result = subprocess.run(["python", memory_path], capture_output=True, text=True, universal_newlines=True)          
 
-          print(transport.memory.memory_holder)
+          print(tp.memory.memory_holder)
 
      def extract_affective_state(self, app_output: dict) -> np.ndarray:
    
