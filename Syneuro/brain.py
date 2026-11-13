@@ -58,11 +58,10 @@ class Brain:
 
         lim_spike = self.neural_pathway(self.active_modules.LIM) if self.neural_pathway(self.active_modules.LIM) != 0 else 0
         cen_spike = self.neural_pathway(self.active_modules.CEN) if self.neural_pathway(self.active_modules.CEN) != 0 else 0
-        sal_spike = self.neural_pathway(self.active_modules.SAL) if self.neural_pathway(self.active_modules.SAL) != 0 else 0
-
+    
         self.spiked['LIM'] = lim_spike
         self.spiked['CEN'] = cen_spike
-        self.spiked['SAL'] = sal_spike
+
 
     def neural_pathway(self, brain_module: object) -> dict[str, any] | int:
 
@@ -71,5 +70,3 @@ class Brain:
                 return self.active_modules.LIM.lim_pathway(self.app_output)
             case self.active_modules.CEN:
                 return self.active_modules.CEN.cen_pathway(self.app_output) #soon
-            case self.active_modules.SAL:
-                return self.active_modules.SAL.sal_pathway(self.app_output) #soon

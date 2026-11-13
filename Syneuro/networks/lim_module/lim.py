@@ -1,4 +1,4 @@
-import src.transport as tp
+import Syneuro.transport as tp
 import numpy as np
 from groq import Groq
 import subprocess, json, asyncio
@@ -86,14 +86,9 @@ class LIMNetwork:
 
      def __init__(self, api_key: str):
 
-          from ...network import network_builder # Deferred import
-
           self.client = Groq(api_key=api_key)
-          #self.sensor = SensoryOutput()
-          self.emotion = QuantumEmotion()
 
-          #cen_class = network_builder("CEN")
-          #self.cen = cen_class(agent_output=app_output)
+          self.emotion = QuantumEmotion()
 
           self.emotion_matrix = {
                "x": {
@@ -160,24 +155,20 @@ class LIMNetwork:
           for timestamp, sensor_data in sensory_data.items():
                match type(sensor_data).__name__:
 
-                    # ASYNCIO FOR DATA FLOW, NETWORKING, AND COMMUNICATION
-                    # MULTIPROCESSING MODULE FOR MATRIX, MATH, AND OPTMIZE, ANYTHING IN NUMPY, NN
-
                     case "str":
                          self.sensor.Text = sensory_data
                          self.amygdala(self.sensor.Text)
-                         attentionGate = check_attention(self.emotion.state_vector, timestamp, 2.0) # test self.decayrate
+                         attentionGate = check_attention(self.emotion.state_vector, timestamp, 2.0) 
                          asyncio.create_task(self.cen.push_attention(attentionGate, sensor_data))
                     case "bytearray":
-                         # sensoryOutput is a class because the brain will also check it, be used in other areas
                          self.sensor.Audio = sensor_data
                          self.amygdala(self.sensor.Audio) 
-                         attentionGate = check_attention(self.emotion.state_vector, timestamp, 3.0) # test self.decayrate
+                         attentionGate = check_attention(self.emotion.state_vector, timestamp, 3.0) 
                          asyncio.create_task(self.cen.push_attention(attentionGate, sensor_data))
                     case "ndarray":
                          self.sensor.Video = sensor_data
                          self.amygdala(self.sensor.Video)
-                         attentionGate = check_attention(self.emotion.state_vector, timestamp, 4.0) # test self.decayrate
+                         attentionGate = check_attention(self.emotion.state_vector, timestamp, 4.0) 
                          asyncio.create_task(self.cen.push_attention(attentionGate, sensor_data))
     
      def amygdala(self, app_output: object):
@@ -227,14 +218,6 @@ class LIMNetwork:
 
           await pass_memory
           print(pass_memory)
-
-          # retrieve result from that asyncio and put to memory.memory_holder
-
-          memory_path = r"C:\Users\MSTR Xen\Documents\SYNEURO\services\python_inference\transport\memory.py"
-
-          result = subprocess.run(["python", memory_path], capture_output=True, text=True, universal_newlines=True)          
-
-          print(tp.memory.memory_holder)
 
      def extract_affective_state(self, app_output: dict) -> np.ndarray:
    

@@ -1,88 +1,37 @@
-import os, sys, unittest
-import unittest
-from dotenv import load_dotenv
+import os, sys, pytest
+from groq import Groq
+from datetime import datetime, timezone
+from Syneuro import brain
 
 root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if root_dir not in sys.path:
     sys.path.insert(0, root_dir)
 
+def test_init_syneuro_conscious_state():
+    
+    app_output = None # soon
 
-class TestInference(unittest.TestCase):
+    key = input(os.environ.get("API_KEY"))
 
-    def test_init_syneuro_conscious_state(self):
-        
-        app_output = {
-            'sensory': {
-                '2026-06-25T12:30:00.000Z': 'I AM MADD.',
-                '2026-06-25T1:30:00.000Z': 'IM SO HAPPY',
-            },
-            'modalities': [
-                'Text',
-                'Text'
-            ],
-            'request_activation': [
-                'CEN',
-                'LIM'
-            ],
-            'active_modules': {
-                'CEN' = object,
-                'LIM' = object
-            },
-        }
+    agent_brain = brain.Brain(key)
+    current_time = datetime.now(timezone.utc)
 
-        load_dotenv()
-        api_key = os.getenv('TEST_CASE_KEY')
-        from src.inference.brain import Brain
-        brain = Brain(app_output, api_key)
+    formatted_time = current_time.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
 
-        from src.inference.brain import syneuro_conscious_state
-        syneuro_conscious_state(Brain, app_output, api_key)
+    conscious_warmup = agent_brain.activate_conscious_warmup(key)
+    user_talk = None
 
+    if (conscious_warmup):
 
-    def test_activate_bm_syneuro(self):
+        brain_sense = agent_brain.sense_sensory_data(app_output)
+        brain_conscious = agent_brain.activate_conscious_state()
+        brain_response = agent_brain.react_to_sensory_data()
 
-        app_output = {
-            'datetime': '2026-06-25',
-            'sensory': {
-                'Text': {'Time': 'T12:30:00.000Z', 'Data': 'This is a test yay.'},
-                'Text': {'Time': 'T12:31:00.000Z', 'Data': 'This is not a test!!!'},
-                'Image': {'Time': 'T12:32:00.000Z', 'Data': bytearray[1]}
-            },
-            'modalities': [
-                'Text',
-                'Text',
-                'Image'
-            ],
-            'request_activation': [
-                'CEN',
-                'CLIM',
-                'VIS'
-            ],
-            'active_modules': [
-                'CEN',
-                'LIM'
-            ],
-        }
-
-        load_dotenv()
-        api_key = os.getenv('TEST_CASE_KEY')
-        from src.inference.brain import Brain
-        brain = Brain(app_output, api_key)
-        
-        activate_bm = brain.activate_brain_module('LIM')
-
-        lim = network_builder("LIM")
-
-        active_modules_equality = {
-            'LIM': lim(app_output, api_key)
-        }
-
-        if (activate_bm):
-            return_type = type(activate_bm)
-            self.assertEqual(return_type, str)
-
-        self.assertIsInstance(brain.active_modules['LIM'], type(active_modules_equality['LIM']))
-
-
-
-
+        for brain_module, spike in agent_brain.spiked:
+            if (not spike):
+                continue
+            print(f"{brain_module}" + spike)
+    else:
+        print("Agent's brain consciousness is not warmed up.")
+        print("Initializing agent's brain warm-up.")
+        conscious_warmup = agent_brain.activate_conscious_warmup(key)
