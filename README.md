@@ -1,11 +1,11 @@
 ## Syneuro
 
-Future work: Adapt syneuro to a VLA pipeline for AI gf companions
+> Future work: Adapt syneuro to a VLA pipeline for AI gf companions
+---
 
-<img width="1672" height="941" alt="image" src="https://github.com/user-attachments/assets/dba4ca5a-4a0d-402f-bde2-b791cd949df7" />
+<img width="1672" height="941" alt="image" src="https://github.com/user-attachments/assets/40766958-af17-4109-8e71-f6959fbcd40a" />
 
-
-## Example
+---
 
 ```python
 key = input(os.environ.get("API_KEY"))
