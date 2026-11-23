@@ -1,4 +1,5 @@
 import numpy as np
+from dataclasses import dataclass
 from groq import Groq
 import orjson, asyncio
 
@@ -18,7 +19,7 @@ def get_emotional_state(valence: float, arousal: float) -> tuple[np.complex128, 
 
     return amp_0, amp_1
 
-class QuantumEmotion:
+class Quantum:
      emotional_state: float 
      affective_state: np.ndarray 
      stimulus_states: np.ndarray
@@ -53,17 +54,13 @@ class QuantumEmotion:
 
         theta = np.interp(valence, [-1, 1], [np.pi, 0])
         phi = np.interp(arousal, [-1, 1], [0, 2 * np.pi])
-        r = np.interp(dominance, [-1, 1], [0, 1])
+        lam = np.interp(dominance, [-1, 1], [0, 2 * np.pi]) 
 
-        x = r * np.sin(theta) * np.cos(phi)
-        y = r * np.sin(theta) * np.sin(phi)
-        z = r * np.cos(theta)
+        self.bloch_vector['x'] = np.sin(theta) * np.cos(phi)
+        self.bloch_vector['y'] = np.sin(theta) * np.sin(phi)
+        self.bloch_vector['z'] = np.cos(theta)
 
-        self.bloch_vector['x'] = x
-        self.bloch_vector['y'] = y
-        self.bloch_vector['z'] = z
-
-        return (self.bloch_vector['x'], self.bloch_vector['y'], self.bloch_vector['z'])
+        return (theta, phi, lam)
      
      def compute_emotion_state(self, theta: float, phi: float, r: float)  -> np.ndarray :
         
@@ -75,23 +72,24 @@ class QuantumEmotion:
      
      def compute_emotion_transition(self, stimulus_vad: np.ndarray) -> None:
 
-        theta, phi = self.map_vad_to_angles(stimulus_vad)
+        x, y, z = self.map_vad_to_angles(stimulus_vad)
         
         U = np.array([
-            [np.cos(theta/2), -np.exp(-1j*phi) * np.sin(theta/2)],
-            [np.exp(1j*phi) * np.sin(theta/2), np.cos(theta/2)]
+          [np.cos(x/ 2), -np.exp(1j * z) * np.sin(x / 2)],
+          [np.exp(1j * y) * np.sin(x / 2), np.exp(1j * (y + z)) * np.cos(x / 2)]
         ], dtype=np.complex128)
         
         self.state_vector = np.dot(U, self.state_vector)
         self.affective_state = self.state_vector
+        self.emotional_state = x + y + z
 
-class LIMNetwork:
+class Emotion:
      '''
      Responsible for  the emotional center of the brain; 
      it regulates mood, emotional responses, motivation, and memory formation.
      '''
      judge: Groq
-     emotion: QuantumEmotion
+     quantum: Quantum
      emotion_matrix: dict[str, dict[str, str | float]] 
 
      __slots__ = ['judge', 'text_data', 'emotion', 'emotion_matrix']
@@ -100,7 +98,7 @@ class LIMNetwork:
 
           self.judge = Groq(api_key=api_key)
 
-          self.emotion = QuantumEmotion()
+          self.emotion = Quantum()
 
           self.emotion_matrix = {
                "x": {
@@ -119,11 +117,13 @@ class LIMNetwork:
                }
           }
 
-     def lim_pathway(self, app_output: dict[str, any]) -> dict[str, any] | int:
+          self.key = api_key
+
+     def emotion_attach(self, app_output: dict[str, any]) -> dict[str, any] | int:
           
           return self.amygdala(app_output)
 
-     def update_emotion_matrix(self) -> dict[str, dict[str, str | float]]:
+     def update_emotion_matrix(self) -> None:
 
         x_val = self.emotion.bloch_vector['x'][0]
         y_val = self.emotion.bloch_vector['y'][0]
@@ -153,36 +153,27 @@ class LIMNetwork:
             self.emotion_matrix["z"]["moderate_negative"]["value"] = float(z_val) if z_val > -0.6 else 0.0
             self.emotion_matrix["z"]["extreme_negative"]["value"] = float(z_val) if z_val <= -0.6 else 0.0
 
-        return self.emotion_matrix
+     def amygdala(self, app_output: object) -> dict[str, any] | dict[str, dict[str, str | float]]:
+          vad = self.extract_affective_state(app_output)
 
-    
-     def amygdala(self, app_output: object) -> dict[str, dict[str, str | float]]:
-          amygdala_work = set()
+          if (vad == None):
+               return {"emotion_state": "bad"}
 
-          get_vad = self.extract_affective_state(app_output)
-          compute_emotion = self.emotion.map_vad_to_angles(get_vad)
-
-          if (self.emotion.emotional_state <= 0 and (self.emotion.affective_state != 0.0).all()):
-               transition_the_emotion = asyncio.create_task(
-                    self.emotion.compute_emotion_transition(self.emotion.affective_state)
-               )
-               amygdala_work.add(transition_the_emotion)
+          if (self.emotion.emotional_state <= 0 and (self.emotion.affective_state != 0.0).all()): 
+               transitioned_emotion = self.emotion.compute_emotion_transition(vad)
 
           elif (self.emotion.emotional_state >= 0.0 and self.emotion.affective_state[0] != 0.0 and
-                    self.emotion.affective_state[1] != 0.0):
-               transition_the_emotion = asyncio.create_task(
-                    self.emotion.compute_emotion_transition(self.emotion.affective_state)
-               )
-               amygdala_work.add(transition_the_emotion)
+               self.emotion.affective_state[1] != 0.0):
+               transitioned_emotion = self.emotion.compute_emotion_transition(vad)
 
           bloch_vector = self.emotion.bloch_vector[0]
 
-          if (bloch_vector['x'] + bloch_vector['y'] + bloch_vector['z']) != 0:
+          if (bloch_vector['x'] + bloch_vector['y'] + bloch_vector['z'] != 0):
                self.update_emotion_matrix()
                     
           return self.emotion_matrix
 
-     def extract_affective_state(self, app_output: dict) -> np.ndarray:
+     def extract_affective_state(self, user_output: dict) -> np.ndarray | None:
    
           system_prompt = """
           You are a sensory feature extractor. Analyze the data and output ONLY valid JSON.
@@ -190,17 +181,24 @@ class LIMNetwork:
           Values must be between -1.0 and 1.0.
           """
 
-          response = self.client.chat.completions.create(
+          response = self.judge.chat.completions.create(
                model="llama-3.1-8b-instant",
                messages=[
                     {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": ""}
+                    {"role": "user", "content": user_output}
                ],
                response_format={"type": "json_object"}, 
                temperature=0.1 
           )
-          
-          payload = orjson.loads(response.choices[0].message.content)
+          payload: dict[str, any] = orjson.loads(response.choices[0].message.content)
+
+          if (
+               "valence" not in payload.keys() or
+               "arousal" not in payload.keys() or
+               "dominance" not in payload.keys()
+               ):
+               return None
+
           stimulus = np.array([payload["valence"], payload["arousal"], payload["dominance"]])
           
           return stimulus
