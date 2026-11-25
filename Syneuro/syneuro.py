@@ -94,9 +94,9 @@ class Emotion:
 
      __slots__ = ['judge', 'text_data', 'emotion', 'emotion_matrix']
 
-     def __init__(self, api_key: str):
+     def __init__(self, groq_api_key: str):
 
-          self.judge = Groq(api_key=api_key)
+          self.judge = Groq(api_key=groq_api_key)
 
           self.emotion = Quantum()
 
@@ -116,12 +116,6 @@ class Emotion:
                     "extreme_negative": {"name": "Depressed", "value": 0.0, "min": 0.0, "max": 1.0}
                }
           }
-
-          self.key = api_key
-
-     def emotion_attach(self, app_output: dict[str, any]) -> dict[str, any] | int:
-          
-          return self.amygdala(app_output)
 
      def update_emotion_matrix(self) -> None:
 
@@ -153,18 +147,20 @@ class Emotion:
             self.emotion_matrix["z"]["moderate_negative"]["value"] = float(z_val) if z_val > -0.6 else 0.0
             self.emotion_matrix["z"]["extreme_negative"]["value"] = float(z_val) if z_val <= -0.6 else 0.0
 
-     def amygdala(self, app_output: object) -> dict[str, any] | dict[str, dict[str, str | float]]:
-          vad = self.extract_affective_state(app_output)
+     def emotion(self, text_str: str, oai_compatible_model: str) -> dict[str, any] | dict[str, dict[str, str | float]]:
+          vad = self.extract_affective_state(text_str, oai_compatible_model: str)
 
           if (vad == None):
                return {"emotion_state": "bad"}
 
           if (self.emotion.emotional_state <= 0 and (self.emotion.affective_state != 0.0).all()): 
-               transitioned_emotion = self.emotion.compute_emotion_transition(vad)
+
+               self.emotion.compute_emotion_transition(vad)
 
           elif (self.emotion.emotional_state >= 0.0 and self.emotion.affective_state[0] != 0.0 and
                self.emotion.affective_state[1] != 0.0):
-               transitioned_emotion = self.emotion.compute_emotion_transition(vad)
+
+               self.emotion.compute_emotion_transition(vad)
 
           bloch_vector = self.emotion.bloch_vector[0]
 
@@ -173,7 +169,7 @@ class Emotion:
                     
           return self.emotion_matrix
 
-     def extract_affective_state(self, user_output: dict) -> np.ndarray | None:
+     def extract_affective_state(self, text_str: str, oai_compatible_model: str) -> np.ndarray | None:
    
           system_prompt = """
           You are a sensory feature extractor. Analyze the data and output ONLY valid JSON.
@@ -182,10 +178,10 @@ class Emotion:
           """
 
           response = self.judge.chat.completions.create(
-               model="llama-3.1-8b-instant",
+               model=oai_compatible_model,
                messages=[
                     {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_output}
+                    {"role": "user", "content": text_str}
                ],
                response_format={"type": "json_object"}, 
                temperature=0.1 
