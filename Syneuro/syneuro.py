@@ -147,7 +147,7 @@ class Emotion:
             self.emotion_matrix["z"]["moderate_negative"]["value"] = float(z_val) if z_val > -0.6 else 0.0
             self.emotion_matrix["z"]["extreme_negative"]["value"] = float(z_val) if z_val <= -0.6 else 0.0
 
-     def emotion(self, text_str: str, oai_compatible_model: str) -> dict[str, any] | dict[str, dict[str, dict[str, str | float]]]:
+     def process(self, text_str: str, oai_compatible_model: str) -> dict[str, any] | dict[str, dict[str, dict[str, str | float]]]:
           vad = self.extract_affective_state(text_str, oai_compatible_model)
 
           if (vad == None):
