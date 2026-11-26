@@ -90,9 +90,9 @@ class Emotion:
      '''
      judge: Groq
      quantum: Quantum
-     emotion_matrix: dict[str, dict[str, str | float]] 
+     emotion_matrix: dict[str, dict[str, dict[str, str | float]]]
 
-     __slots__ = ['judge', 'text_data', 'emotion', 'emotion_matrix']
+     __slots__ = ['judge', 'emotion', 'emotion_matrix']
 
      def __init__(self, groq_api_key: str):
 
