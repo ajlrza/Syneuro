@@ -62,7 +62,7 @@ class Quantum:
 
         return (theta, phi, lam)
      
-     def compute_emotion_state(self, theta: float, phi: float, r: float)  -> np.ndarray :
+     def compute_emotion_state(self, theta: float, phi: float, r: float)  -> np.ndarray:
         
         amp_0 = np.cos(theta / 2)
         amp_1 = np.exp(1j * phi) * np.sin(theta / 2)
@@ -88,7 +88,7 @@ class Emotion:
      Responsible for  the emotional center of the brain; 
      it regulates mood, emotional responses, motivation, and memory formation.
      '''
-     judge: Groq
+     judge: Groq 
      quantum: Quantum
      emotion_matrix: dict[str, dict[str, dict[str, str | float]]]
 
@@ -147,8 +147,8 @@ class Emotion:
             self.emotion_matrix["z"]["moderate_negative"]["value"] = float(z_val) if z_val > -0.6 else 0.0
             self.emotion_matrix["z"]["extreme_negative"]["value"] = float(z_val) if z_val <= -0.6 else 0.0
 
-     def emotion(self, text_str: str, oai_compatible_model: str) -> dict[str, any] | dict[str, dict[str, str | float]]:
-          vad = self.extract_affective_state(text_str, oai_compatible_model: str)
+     def emotion(self, text_str: str, oai_compatible_model: str) -> dict[str, any] | dict[str, dict[str, dict[str, str | float]]]:
+          vad = self.extract_affective_state(text_str, oai_compatible_model)
 
           if (vad == None):
                return {"emotion_state": "bad"}
