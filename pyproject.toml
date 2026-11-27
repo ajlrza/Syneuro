@@ -23,11 +23,11 @@ description = "A Lightweight Groq-based Quantitative Emotion Layer for AI Chatbo
 readme = "README.md"
 license = {text = "MIT"}
 classifiers = [
-    "Programming Language :: Python :: 3:15.0",
+    "Programming Language :: Python :: 3.15",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Intended Audience :: Developers",
-    "Topic :: Affective Computing"
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
 
 [tool.hatch.build.targets.wheel]
