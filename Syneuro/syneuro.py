@@ -48,7 +48,7 @@ class Quantum:
         self.bloch_dt = np.dtype([('x', 'f4'), ('y', 'f4'), ('z', 'f4')])
         self.bloch_vector = np.array([(0.0, 0.0, 0.0)], dtype=self.bloch_dt)
 
-     def map_vad_to_angles(self, stimulus: np.ndarray) -> tuple[float]:
+     def map_vad_to_angles(self, stimulus: np.ndarray) -> None:
 
         valence, arousal, dominance = stimulus
 
@@ -59,8 +59,6 @@ class Quantum:
         self.bloch_vector['x'] = np.sin(theta) * np.cos(phi)
         self.bloch_vector['y'] = np.sin(theta) * np.sin(phi)
         self.bloch_vector['z'] = np.cos(theta)
-
-        return (theta, phi, lam)
      
      def compute_emotion_state(self, theta: float, phi: float, r: float)  -> np.ndarray:
         
@@ -89,7 +87,7 @@ class Emotion:
      it regulates mood, emotional responses, motivation, and memory formation.
      '''
      judge: Groq 
-     quantum: Quantum
+     emotion: Quantum
      emotion_matrix: dict[str, dict[str, dict[str, str | float]]]
 
      __slots__ = ['judge', 'emotion', 'emotion_matrix']
@@ -153,19 +151,16 @@ class Emotion:
           if not (isinstance(vad, np.ndarray)):
                return self.emotion_matrix
 
-          if (self.emotion.emotional_state <= 0 and (self.emotion.affective_state != 0.0).all()): 
+          if (self.emotion.emotional_state <= 0.0 and (self.emotion.affective_state != 0.0 + 0.j).all()): 
 
                self.emotion.compute_emotion_transition(vad)
 
-          elif (self.emotion.emotional_state >= 0.0 and self.emotion.affective_state[0] != 0.0 and
-               self.emotion.affective_state[1] != 0.0):
+          elif (self.emotion.emotional_state >= 0.0 and self.emotion.affective_state[0] != 0.0 + 0.j and
+               self.emotion.affective_state[1] != 0.0 + 0.j):
 
                self.emotion.compute_emotion_transition(vad)
 
-          bloch_vector = self.emotion.bloch_vector[0]
-
-          if (bloch_vector['x'] + bloch_vector['y'] + bloch_vector['z'] != 0):
-               self.update_emotion_matrix()
+          self.update_emotion_matrix()
                     
           return self.emotion_matrix
 
@@ -183,7 +178,23 @@ class Emotion:
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": text_str}
                ],
-               response_format={"type": "json_object"}, 
+               response_format={
+                    "type": "json_schema",
+                    "json_schema": {
+                         "name": "emotions",
+                         "strict": True,
+                         "schema": {
+                              "type": "object",
+                              "properties": {
+                                   "valence": {"type": "number"},
+                                   "arousal": {"type": "number"},
+                                   "dominance": {"type": "number"}
+                              },
+                              "required": ["valence", "arousal", "dominance"],
+                              "additionalProperties": False,
+                         }
+                    }
+               }, 
                temperature=0.1 
           )
           payload: dict[str, any] = orjson.loads(response.choices[0].message.content)
