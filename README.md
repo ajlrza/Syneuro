@@ -21,10 +21,10 @@ If prerequisites are not yet installed or are outdated, follow the steps below
 
 ## Installation
 
-You can install the `QMonitor` package directly from the Git repository using pip.
+You can install the `Syneuro` package directly from the Git repository using pip.
 
 ```bash
-pip install git+https://github.com/ajlrza/qintern2026-project-infrastructure.git
+pip install git+https://github.com/ajlrza/Syneuro.git
 ```
 
 ```bash
@@ -37,7 +37,7 @@ import os
 from Syneuro import syneuro
 
 text = "This is a text sample."
-emotion = syneuro.Emotion(os.environ.get("API_KEY")
+emotion = syneuro.Emotion(os.environ.get("API_KEY"))
 processed_emotion = emotion.process(text_str=text, oai_compatible_model="llama-3.3-70b-versatile")
 ```
 > [!NOTE]
