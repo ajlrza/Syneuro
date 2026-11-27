@@ -8,7 +8,7 @@
 
 # Syneuro: Dev Workflow Guide
 
-Syneuro is a lightweight layer you can add on top of your AI chatbot applications.
+Syneuro is a lightweight emotion layer you can add on top of your AI chatbot applications.
 It uses LLM-as-judge mechanism, where the LLM itself reasons around the emotions, though, it is Groq-based.
 A Groq API key is needed, unless the code is modified to take any other API keys and endpoints.
 
