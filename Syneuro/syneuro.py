@@ -150,8 +150,8 @@ class Emotion:
      def process(self, text_str: str, oai_compatible_model: str) -> dict[str, any] | dict[str, dict[str, dict[str, str | float]]]:
           vad = self.extract_affective_state(text_str, oai_compatible_model)
 
-          if (vad == None):
-               return {"emotion_state": "bad"}
+          if not (isinstance(vad, np.ndarray)):
+               return self.emotion_matrix
 
           if (self.emotion.emotional_state <= 0 and (self.emotion.affective_state != 0.0).all()): 
 
