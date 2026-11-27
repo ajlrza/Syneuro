@@ -48,9 +48,9 @@ class Quantum:
         self.bloch_dt = np.dtype([('x', 'f4'), ('y', 'f4'), ('z', 'f4')])
         self.bloch_vector = np.array([(0.0, 0.0, 0.0)], dtype=self.bloch_dt)
 
-     def map_vad_to_angles(self, stimulus: np.ndarray) -> None:
+     def map_vad_to_angles(self, vad: np.ndarray) -> None:
 
-        valence, arousal, dominance = stimulus
+        valence, arousal, dominance = vad
 
         theta = np.interp(valence, [-1, 1], [np.pi, 0])
         phi = np.interp(arousal, [-1, 1], [0, 2 * np.pi])
@@ -68,9 +68,9 @@ class Quantum:
         self.state_vector = r * np.array([[amp_0], [amp_1]], dtype=np.complex128)
         return self.state_vector
      
-     def compute_emotion_transition(self, stimulus_vad: np.ndarray) -> None:
+     def compute_emotion_transition(self, vad: np.ndarray) -> None:
 
-        x, y, z = self.map_vad_to_angles(stimulus_vad)
+        x, y, z = self.map_vad_to_angles(vad)
         
         U = np.array([
           [np.cos(x/ 2), -np.exp(1j * z) * np.sin(x / 2)],
@@ -151,6 +151,8 @@ class Emotion:
           if not (isinstance(vad, np.ndarray)):
                return self.emotion_matrix
 
+          self.emotion.map_vad_to_angles(vad)
+
           if (self.emotion.emotional_state <= 0.0 and (self.emotion.affective_state != 0.0 + 0.j).all()): 
 
                self.emotion.compute_emotion_transition(vad)
@@ -206,6 +208,6 @@ class Emotion:
                ):
                return None
 
-          stimulus = np.array([payload["valence"], payload["arousal"], payload["dominance"]])
+          vad = np.array([payload["valence"], payload["arousal"], payload["dominance"]])
           
-          return stimulus
+          return vad
